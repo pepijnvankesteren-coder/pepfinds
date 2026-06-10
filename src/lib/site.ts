@@ -1,16 +1,16 @@
 /** Centralized site metadata, reused by layout SEO, sitemap, and footer. */
 export const SITE = {
   name: "PepFinds",
-  title: "PepFinds — Find Products Direct From China",
+  title: "PepFinds — Curated Finds Direct From China",
   description:
-    "Search millions of products from Weidian, Taobao, and 1688 in one place.",
+    "A hand-picked catalog of products from Weidian, Taobao, and 1688 — each with direct links to trusted buying agents.",
   url: "https://pepfinds.com",
   locale: "en_US",
 } as const;
 
 /** Primary navigation links shared by the navbar. */
 export const NAV_LINKS = [
-  { label: "Discover", href: "/#showcase" },
+  { label: "Catalog", href: "/search" },
   { label: "Marketplaces", href: "/#marketplaces" },
   { label: "Features", href: "/#features" },
 ] as const;

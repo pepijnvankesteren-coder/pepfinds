@@ -1,14 +1,8 @@
 "use client";
 
 import * as React from "react";
-import Image from "next/image";
 import Link from "next/link";
-import {
-  motion,
-  useReducedMotion,
-  useScroll,
-  useTransform,
-} from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
@@ -17,22 +11,11 @@ import { SearchBar } from "@/components/ui/search-bar";
 const EASE = [0.16, 1, 0.3, 1] as const;
 
 /**
- * Full-bleed hero: oversized headline, centered search, primary CTA, and a
- * large product mockup that drifts with a subtle scroll-driven parallax.
+ * Hero: oversized headline, centered search, and the primary CTA into the
+ * catalog. Kept deliberately spare — the curated products are the show.
  */
 export function Hero() {
   const reduceMotion = useReducedMotion();
-  const mockupRef = React.useRef<HTMLDivElement>(null);
-
-  const { scrollYProgress } = useScroll({
-    target: mockupRef,
-    offset: ["start end", "end start"],
-  });
-  const parallaxY = useTransform(
-    scrollYProgress,
-    [0, 1],
-    reduceMotion ? [0, 0] : [60, -60],
-  );
 
   const container = {
     hidden: {},
@@ -48,7 +31,7 @@ export function Hero() {
   };
 
   return (
-    <section className="relative overflow-hidden pt-32 sm:pt-40">
+    <section className="relative overflow-hidden pb-20 pt-32 sm:pb-24 sm:pt-40">
       <div className="hero-glow pointer-events-none absolute inset-0 -z-10" />
 
       <Container>
@@ -61,7 +44,7 @@ export function Hero() {
           <motion.div variants={item} className="flex justify-center">
             <span className="inline-flex items-center gap-2 rounded-full border border-line bg-surface-soft px-3.5 py-1.5 text-xs font-medium text-muted">
               <span className="size-1.5 rounded-full bg-ink" />
-              Product discovery, refined
+              Hand-picked, agent-ready finds
             </span>
           </motion.div>
 
@@ -69,7 +52,7 @@ export function Hero() {
             variants={item}
             className="mt-6 text-5xl font-semibold leading-[1.05] tracking-tight text-ink sm:text-6xl md:text-7xl"
           >
-            Find Products
+            Curated Finds,
             <br />
             Direct From China
           </motion.h1>
@@ -78,14 +61,11 @@ export function Hero() {
             variants={item}
             className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-muted text-balance"
           >
-            Search millions of products from Weidian, Taobao, and 1688 in one
-            place.
+            A hand-picked catalog of products from Weidian, Taobao, and 1688 —
+            each with direct links to trusted buying agents.
           </motion.p>
 
-          <motion.div
-            variants={item}
-            className="mx-auto mt-10 max-w-xl"
-          >
+          <motion.div variants={item} className="mx-auto mt-10 max-w-xl">
             <SearchBar />
           </motion.div>
 
@@ -94,32 +74,11 @@ export function Hero() {
             className="mt-6 flex items-center justify-center"
           >
             <Button asChild size="lg">
-              <Link href="/search">Start Searching</Link>
+              <Link href="/search">Browse the Catalog</Link>
             </Button>
           </motion.div>
         </motion.div>
       </Container>
-
-      <div ref={mockupRef} className="relative mt-20 sm:mt-24">
-        <motion.div
-          initial={{ opacity: 0, y: reduceMotion ? 0 : 60, scale: 0.98 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 1, ease: EASE, delay: 0.4 }}
-          style={{ y: parallaxY }}
-          className="mx-auto w-full max-w-5xl px-6"
-        >
-          <div className="relative aspect-[16/10] overflow-hidden rounded-2xl border border-line bg-surface-soft shadow-float sm:rounded-[2rem]">
-            <Image
-              src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&w=1600&q=80"
-              alt="Preview of the PepFinds product discovery experience"
-              fill
-              priority
-              sizes="(max-width: 1024px) 100vw, 1024px"
-              className="object-cover"
-            />
-          </div>
-        </motion.div>
-      </div>
     </section>
   );
 }

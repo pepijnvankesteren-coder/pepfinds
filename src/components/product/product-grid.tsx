@@ -3,11 +3,11 @@
 import { motion, useReducedMotion } from "framer-motion";
 
 import { cn } from "@/lib/utils";
-import type { Product } from "@/lib/types";
+import type { ProductView } from "@/lib/types";
 import { ProductCard } from "@/components/product/product-card";
 
 interface ProductGridProps {
-  products: Product[];
+  products: ProductView[];
   className?: string;
   /** Number of initial cards to mark as priority for LCP. */
   priorityCount?: number;

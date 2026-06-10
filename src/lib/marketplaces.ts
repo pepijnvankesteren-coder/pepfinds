@@ -1,12 +1,12 @@
-import type { Marketplace, MarketplaceId } from "@/lib/types";
+import type { MarketplaceId, MarketplaceInfo } from "@/lib/types";
 
 /**
  * The supported marketplaces. Treated as the single source of truth — UI
- * badges, marketplace cards, and source links all derive from this map.
+ * badges, marketplace cards, and the admin form all derive from this map.
  */
-export const MARKETPLACES: Record<MarketplaceId, Marketplace> = {
-  weidian: {
-    id: "weidian",
+export const MARKETPLACES: Record<MarketplaceId, MarketplaceInfo> = {
+  WEIDIAN: {
+    id: "WEIDIAN",
     name: "Weidian",
     description: "Boutique sellers and emerging brands.",
     domain: "weidian.com",
@@ -16,8 +16,8 @@ export const MARKETPLACES: Record<MarketplaceId, Marketplace> = {
       bg: "bg-[#e02020]/8",
     },
   },
-  taobao: {
-    id: "taobao",
+  TAOBAO: {
+    id: "TAOBAO",
     name: "Taobao",
     description: "The largest consumer marketplace in China.",
     domain: "taobao.com",
@@ -27,8 +27,8 @@ export const MARKETPLACES: Record<MarketplaceId, Marketplace> = {
       bg: "bg-[#ff5000]/8",
     },
   },
-  "1688": {
-    id: "1688",
+  ALI_1688: {
+    id: "ALI_1688",
     name: "1688",
     description: "Wholesale sourcing direct from factories.",
     domain: "1688.com",
@@ -38,11 +38,26 @@ export const MARKETPLACES: Record<MarketplaceId, Marketplace> = {
       bg: "bg-[#ff6a00]/8",
     },
   },
+  OTHER: {
+    id: "OTHER",
+    name: "Other",
+    description: "Sourced beyond the big three.",
+    domain: "",
+    initials: "OT",
+    accent: {
+      text: "text-muted",
+      bg: "bg-surface-soft",
+    },
+  },
 };
 
-/** Ordered list for rendering. */
-export const MARKETPLACE_LIST: Marketplace[] = Object.values(MARKETPLACES);
+/** The primary marketplaces shown on the homepage (excludes the catch-all). */
+export const MARKETPLACE_LIST: MarketplaceInfo[] = [
+  MARKETPLACES.WEIDIAN,
+  MARKETPLACES.TAOBAO,
+  MARKETPLACES.ALI_1688,
+];
 
-export function getMarketplace(id: MarketplaceId): Marketplace {
+export function getMarketplace(id: MarketplaceId): MarketplaceInfo {
   return MARKETPLACES[id];
 }

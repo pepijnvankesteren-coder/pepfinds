@@ -1,4 +1,4 @@
-import { Layers, Zap, Link2, type LucideIcon } from "lucide-react";
+import { Sparkles, ShoppingBag, Zap, type LucideIcon } from "lucide-react";
 
 import { Container } from "@/components/ui/container";
 import { Reveal } from "@/components/ui/reveal";
@@ -11,22 +11,22 @@ interface Feature {
 
 const FEATURES: Feature[] = [
   {
-    icon: Layers,
-    title: "Search Multiple Marketplaces",
+    icon: Sparkles,
+    title: "Hand-Picked Catalog",
     description:
-      "One query searches Weidian, Taobao, and 1688 together — no more juggling tabs or translation apps.",
+      "Every product is personally curated — no scraped listings, no noise. Only finds worth your time.",
+  },
+  {
+    icon: ShoppingBag,
+    title: "One-Tap Agent Links",
+    description:
+      "Each product links straight to trusted buying agents like Superbuy, Oopbuy, and Kakobuy — ready to order.",
   },
   {
     icon: Zap,
-    title: "Fast Product Discovery",
+    title: "Instant Search",
     description:
-      "A focused, distraction-free interface surfaces relevant products in an instant, so you find faster.",
-  },
-  {
-    icon: Link2,
-    title: "Direct Source Links",
-    description:
-      "Every result links straight to the original listing, so you always buy from the genuine source.",
+      "Find anything in the catalog by name, tag, or category in an instant, from one focused interface.",
   },
 ];
 

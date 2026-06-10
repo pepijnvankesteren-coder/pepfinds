@@ -65,7 +65,7 @@ export function Navbar() {
 
           <div className="hidden md:block">
             <Button asChild size="sm">
-              <Link href="/search">Start Searching</Link>
+              <Link href="/search">Browse Catalog</Link>
             </Button>
           </div>
 
@@ -103,7 +103,7 @@ export function Navbar() {
               ))}
               <Button asChild size="md" className="mt-2 w-full">
                 <Link href="/search" onClick={() => setMenuOpen(false)}>
-                  Start Searching
+                  Browse Catalog
                 </Link>
               </Button>
             </Container>

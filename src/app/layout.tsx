@@ -2,8 +2,6 @@ import type { Metadata, Viewport } from "next";
 
 import "./globals.css";
 import { SITE } from "@/lib/site";
-import { Navbar } from "@/components/layout/navbar";
-import { Footer } from "@/components/layout/footer";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
@@ -52,13 +50,11 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Navbar/Footer live in the (site) route group layout so the admin area
+  // can render its own minimal chrome.
   return (
     <html lang="en">
-      <body className="min-h-screen bg-canvas antialiased">
-        <Navbar />
-        <main>{children}</main>
-        <Footer />
-      </body>
+      <body className="min-h-screen bg-canvas antialiased">{children}</body>
     </html>
   );
 }

@@ -45,7 +45,8 @@ export function Footer() {
             © {new Date().getFullYear()} {SITE.name}. All rights reserved.
           </p>
           <p>
-            Not affiliated with Weidian, Taobao, or 1688. Prices are estimates.
+            Not affiliated with Weidian, Taobao, 1688, or any purchasing
+            agent.
           </p>
         </div>
       </Container>

@@ -1,0 +1,69 @@
+// Prisma schema for the curated product catalog.
+//
+// Products are created exclusively by the site admin. Each product can carry
+// links to one or more purchasing agents, which are rendered as buy buttons
+// on the public product page.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// Source marketplace a product was found on.
+enum Marketplace {
+  WEIDIAN
+  TAOBAO
+  ALI_1688 @map("1688")
+  OTHER
+}
+
+/// Supported purchasing agents.
+enum Agent {
+  OOPBUY
+  KAKOBUY
+  ACBUY
+  ORIENTDIG
+  SUPERBUY
+  BASETAO
+  MULEBUY
+}
+
+model Product {
+  id          String      @id @default(cuid())
+  /// URL-safe identifier used for /product/[slug]. Generated from the title
+  /// on create and kept stable afterwards so shared links never break.
+  slug        String      @unique
+  title       String
+  description String
+  /// Ordered list of image URLs; the first one is the cover image.
+  images      String[]
+  category    String?
+  /// Normalized to lowercase on write so tag search is case-insensitive.
+  tags        String[]
+  marketplace Marketplace @default(OTHER)
+  /// Featured products surface in the homepage "Featured" section.
+  featured    Boolean     @default(false)
+  /// Drafts (published = false) are only visible inside the admin area.
+  published   Boolean     @default(false)
+  agentLinks  AgentLink[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([published, featured])
+  @@index([published, createdAt])
+}
+
+model AgentLink {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  agent     Agent
+  url       String
+
+  // One link per agent per product.
+  @@unique([productId, agent])
+}

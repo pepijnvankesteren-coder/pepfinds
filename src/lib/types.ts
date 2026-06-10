@@ -1,21 +1,23 @@
 /**
- * Core domain types for the product discovery platform.
+ * Core domain types for the curated product platform.
  *
- * These intentionally model only what the MVP needs today, while leaving
- * room for future features (image search, AI matching, affiliate tracking).
- * Keep them framework-agnostic so they can be shared with any future API layer.
+ * The id unions mirror the Prisma enums (`Marketplace`, `Agent`) as plain
+ * string literals so client components never need to import the Prisma
+ * runtime. The server data layer (lib/products.ts) maps database rows into
+ * the serializable view types below before they cross into the UI.
  */
 
-/** Stable identifiers for every supported marketplace. */
-export type MarketplaceId = "weidian" | "taobao" | "1688";
+/** Stable identifiers for every supported source marketplace. */
+export const MARKETPLACE_IDS = ["WEIDIAN", "TAOBAO", "ALI_1688", "OTHER"] as const;
+export type MarketplaceId = (typeof MARKETPLACE_IDS)[number];
 
-export interface Marketplace {
+export interface MarketplaceInfo {
   id: MarketplaceId;
   /** Display name, e.g. "Weidian". */
   name: string;
   /** Short tagline shown on marketplace cards. */
   description: string;
-  /** Origin domain, used for outbound source links. */
+  /** Origin domain — empty for the "Other" catch-all. */
   domain: string;
   /** Two-letter accent initials rendered in the logo card. */
   initials: string;
@@ -26,37 +28,48 @@ export interface Marketplace {
   };
 }
 
-export interface Product {
-  id: string;
-  title: string;
-  /** Marketplace this listing originates from. */
-  marketplace: MarketplaceId;
-  /** Estimated price in USD. */
-  price: number;
-  currency: string;
-  /** Primary image URL (remote placeholder for the MVP). */
-  image: string;
-  /** Outbound link to the original listing. */
-  sourceUrl: string;
-  /** Optional discovery metadata — reserved for future ranking/filters. */
-  category?: ProductCategory;
-  rating?: number;
-  soldCount?: number;
+/** Stable identifiers for every supported purchasing agent. */
+export const AGENT_IDS = [
+  "OOPBUY",
+  "KAKOBUY",
+  "ACBUY",
+  "ORIENTDIG",
+  "SUPERBUY",
+  "BASETAO",
+  "MULEBUY",
+] as const;
+export type AgentId = (typeof AGENT_IDS)[number];
+
+export interface AgentInfo {
+  id: AgentId;
+  /** Display name, e.g. "Superbuy". */
+  name: string;
+  /** Primary domain, shown as a hint next to agent link inputs. */
+  domain: string;
 }
 
-export type ProductCategory =
-  | "Apparel"
-  | "Footwear"
-  | "Accessories"
-  | "Tech"
-  | "Home";
+/** A single agent purchase link attached to a product. */
+export interface AgentLinkView {
+  agent: AgentId;
+  url: string;
+}
 
 /**
- * Shape returned by the (currently mocked) search layer. Mirrors what a real
- * paginated API response will look like so swapping the data source is trivial.
+ * Serializable product shape consumed by all UI components.
+ * Dates are ISO strings so the type is safe to pass to client components.
  */
-export interface SearchResponse {
-  query: string;
-  results: Product[];
-  total: number;
+export interface ProductView {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  images: string[];
+  category: string | null;
+  tags: string[];
+  marketplace: MarketplaceId;
+  featured: boolean;
+  published: boolean;
+  createdAt: string;
+  updatedAt: string;
+  agentLinks: AgentLinkView[];
 }

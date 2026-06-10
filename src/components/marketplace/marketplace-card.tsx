@@ -3,10 +3,10 @@
 import { motion } from "framer-motion";
 
 import { cn } from "@/lib/utils";
-import type { Marketplace } from "@/lib/types";
+import type { MarketplaceInfo } from "@/lib/types";
 
 interface MarketplaceCardProps {
-  marketplace: Marketplace;
+  marketplace: MarketplaceInfo;
   className?: string;
 }
 

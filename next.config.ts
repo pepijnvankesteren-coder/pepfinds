@@ -3,16 +3,12 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   images: {
-    // Remote sources used for high-quality placeholder imagery.
-    // Swap/extend these for real marketplace CDNs when wiring live APIs.
+    // Product images are admin-curated URLs and can live on any host
+    // (marketplace CDNs, image hosts), so allow all https sources.
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "picsum.photos",
-      },
-      {
-        protocol: "https",
-        hostname: "images.unsplash.com",
+        hostname: "**",
       },
     ],
     formats: ["image/avif", "image/webp"],

@@ -1,74 +1,92 @@
 # PepFinds
 
-A premium product discovery platform for Chinese marketplaces — search products
-from **Weidian**, **Taobao**, and **1688** in one elegant, Apple-inspired interface.
+A curated product discovery platform. Every product is hand-picked by the
+site owner and sourced from Chinese marketplaces (Weidian, Taobao, 1688),
+with direct purchase links through buying agents (Oopbuy, Kakobuy, ACBuy,
+OrientDig, Superbuy, BaseTao, MuleBuy).
 
-> **MVP foundation.** This build focuses on clean architecture, premium design,
-> and a scalable codebase. All product data is mocked — no real APIs are wired
-> in yet.
+## Stack
 
-## Tech stack
+- **Next.js 15** (App Router, Server Actions) + TypeScript
+- **Tailwind CSS v4** + Framer Motion
+- **PostgreSQL** + **Prisma ORM**
+- Single-admin auth: signed JWT session cookie (jose), middleware-gated `/admin`
 
-- **Next.js 15** (App Router, Server Components)
-- **TypeScript** (strict)
-- **Tailwind CSS v4** (CSS-first `@theme` config)
-- **Framer Motion** (scroll reveals, parallax, micro-interactions)
-- **shadcn/ui** conventions (`cn`, `cva`, Radix `Slot` for the Button)
-- **lucide-react** icons
-
-## Getting started
-
-```bash
-npm install
-npm run dev      # http://localhost:3000
-npm run build    # production build
-npm run start    # serve the production build
-```
-
-## Project structure
+## Project layout
 
 ```
-src/
-├─ app/
-│  ├─ layout.tsx           # Root layout: metadata/SEO, Navbar, Footer
-│  ├─ page.tsx             # Landing page (Hero → Features → Showcase → Marketplaces)
-│  ├─ globals.css          # Tailwind v4 theme + design tokens
-│  ├─ not-found.tsx        # 404
-│  ├─ robots.ts            # robots.txt
-│  ├─ sitemap.ts           # sitemap.xml
-│  └─ search/page.tsx      # /search — mock results + empty state
-├─ components/
-│  ├─ layout/              # Navbar, Footer
-│  ├─ home/                # Hero, Features, ProductShowcase, MarketplacesSection
-│  ├─ product/             # ProductCard, ProductGrid
-│  ├─ marketplace/         # MarketplaceCard, MarketplaceBadge
-│  └─ ui/                  # Button, Container, SearchBar, Reveal
-└─ lib/
-   ├─ types.ts             # Domain types (Product, Marketplace, SearchResponse)
-   ├─ marketplaces.ts      # Source-of-truth marketplace registry
-   ├─ mock-data.ts         # Mock catalog + searchProducts() (async, API-shaped)
-   ├─ site.ts              # Site metadata + nav config
-   └─ utils.ts             # cn(), formatPrice()
+prisma/schema.prisma         Database schema (Product, AgentLink)
+prisma/migrations/           Checked-in SQL migrations
+src/middleware.ts            Auth gate for /admin
+src/lib/
+  db.ts                      Prisma client singleton
+  session.ts                 JWT session tokens (edge-safe)
+  auth.ts                    Cookie/session + password helpers (Node)
+  products.ts                Data access layer (all queries live here)
+  validation.ts              Zod schemas for the product form
+  agents.ts / marketplaces.ts  Agent & marketplace registries
+  actions/                   Server actions (auth, product CRUD)
+src/app/(site)/              Public pages: home, /search, /product/[slug]
+src/app/admin/               Admin: login, dashboard, create/edit product
 ```
 
-## Design system
+## Local development
 
-A restrained black / white / light-gray palette defined as design tokens in
-[`globals.css`](src/app/globals.css) and exposed through Tailwind utilities
-(`bg-ink`, `text-muted`, `border-line`, `rounded-3xl`, `shadow-soft`/`shadow-float`).
-Typography targets the SF Pro family with a system-font fallback stack.
+1. **Environment** — copy `.env.example` to `.env` and fill in:
+   - `DATABASE_URL` — PostgreSQL connection string
+   - `ADMIN_PASSWORD` — the password for `/admin`
+   - `AUTH_SECRET` — random 32+ chars
+     (`node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`)
 
-## Built for scale
+2. **Database** — either point `DATABASE_URL` at a hosted database (Neon free
+   tier works), or run a local one:
 
-The architecture leaves clear seams for future features without building them yet:
+   ```bash
+   npx prisma dev        # local Postgres, keep it running in its own terminal
+   ```
 
-- **`searchProducts()`** is already async and returns an API-shaped
-  `SearchResponse`, so swapping mock data for a real backend touches one function.
-- **`lib/types.ts`** carries reserved fields (`category`, `rating`, `soldCount`)
-  for ranking, filtering, and analytics.
-- **`marketplaces.ts`** is a single registry — adding a marketplace updates
-  badges, cards, and links everywhere at once.
-- Component layering (`ui` → `domain` → `home`) keeps future pages composable.
+   Use the printed `DATABASE_URL`, and append `&pgbouncer=true` to it (the
+   local server needs Prisma's pgbouncer-compatible mode).
 
-Planned next: reverse image search, AI product matching, agent integrations,
-user accounts, favorites, affiliate tracking, and price comparisons.
+   Then apply migrations: `npx prisma migrate deploy`
+
+3. **Run**:
+
+   ```bash
+   npm install
+   npm run dev
+   ```
+
+   Site: http://localhost:3000 · Admin: http://localhost:3000/admin
+
+## Deploying (Vercel)
+
+1. Create a PostgreSQL database (Vercel Marketplace → Neon is the easiest).
+2. In the Vercel project settings, add the environment variables:
+   `DATABASE_URL`, `ADMIN_PASSWORD`, `AUTH_SECRET`
+   (use different, strong values than your local `.env`).
+3. Apply the schema to the production database once, from your machine:
+
+   ```bash
+   npx dotenv -v DATABASE_URL="<production-url>" -- npx prisma migrate deploy
+   ```
+
+   …or simply set the Vercel **build command** to
+   `prisma migrate deploy && next build` so every deploy applies pending
+   migrations automatically.
+4. Push to GitHub — Vercel builds and deploys.
+   (`postinstall` runs `prisma generate` automatically.)
+
+## Managing the catalog
+
+- `/admin` — sign in with `ADMIN_PASSWORD`.
+- **New product** — title, description, image URLs, category, tags, source
+  marketplace, per-agent purchase links, plus *Published* and *Featured*
+  toggles. Drafts are invisible to visitors; a product needs at least one
+  image and one agent link before it can be published.
+- Edit or delete any product from the dashboard list.
+
+Visitors can browse the homepage (featured + new arrivals), search by title,
+description, tag, or category at `/search`, and open agent purchase links
+from each product page. While the catalog is empty, both surfaces show a
+"being curated" empty state.
