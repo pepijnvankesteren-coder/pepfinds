@@ -100,7 +100,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 Pick your preferred purchasing agent — each button opens this
                 listing on the agent&apos;s site, ready to order.
               </p>
-              <AgentButtons links={product.agentLinks} className="mt-5" />
+              <AgentButtons
+                links={product.agentLinks}
+                sourceUrl={product.sourceUrl}
+                className="mt-5"
+              />
               <p className="mt-5 text-xs text-muted-soft">
                 Sourced from {marketplace.name}. PepFinds is not affiliated
                 with any marketplace or purchasing agent.

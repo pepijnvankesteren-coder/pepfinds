@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { AGENT_IDS, MARKETPLACE_IDS } from "@/lib/types";
+import { DIRECT_AGENT_LIST } from "@/lib/agents";
 
 /**
  * Zod schemas + FormData parsing for the admin product form. Validation runs
@@ -36,6 +37,8 @@ export const productInputSchema = z
       .array(z.string().trim().min(1).max(40, "Tags must be 40 characters or fewer"))
       .max(15, "Up to 15 tags per product"),
     marketplace: z.enum(MARKETPLACE_IDS),
+    // Original marketplace listing URL; powers the BaseTao/ACBuy popups.
+    sourceUrl: urlField.optional(),
     agentLinks: z
       .array(z.object({ agent: z.enum(AGENT_IDS), url: urlField }))
       .max(AGENT_IDS.length),
@@ -51,11 +54,13 @@ export const productInputSchema = z
         message: "Add at least one image before publishing",
       });
     }
-    if (data.published && data.agentLinks.length === 0) {
+    // A published product needs at least one way to buy: either a direct agent
+    // link, or a source link (which surfaces the BaseTao/ACBuy buy buttons).
+    if (data.published && data.agentLinks.length === 0 && !data.sourceUrl) {
       ctx.addIssue({
         code: "custom",
         path: ["agentLinks"],
-        message: "Add at least one agent link before publishing",
+        message: "Add at least one agent link or a source link before publishing",
       });
     }
   });
@@ -85,12 +90,15 @@ export function productInputFromForm(formData: FormData): unknown {
     ),
   );
 
-  const agentLinks = AGENT_IDS.flatMap((agent) => {
+  // Source-flow agents (BaseTao, ACBuy) have no per-product input — they're
+  // driven by the single source link below — so only collect direct agents.
+  const agentLinks = DIRECT_AGENT_LIST.flatMap(({ id: agent }) => {
     const url = text(`agent-${agent}`).trim();
     return url ? [{ agent, url }] : [];
   });
 
   const category = text("category").trim();
+  const sourceUrl = text("sourceUrl").trim();
 
   return {
     title: text("title"),
@@ -99,6 +107,7 @@ export function productInputFromForm(formData: FormData): unknown {
     category: category || undefined,
     tags,
     marketplace: text("marketplace") || "OTHER",
+    sourceUrl: sourceUrl || undefined,
     agentLinks,
     featured: formData.get("featured") === "on",
     published: formData.get("published") === "on",

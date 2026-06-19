@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { ArrowUpRight, ImageIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { SOURCE_FLOW_AGENT_LIST } from "@/lib/agents";
 import type { ProductView } from "@/lib/types";
 import { MarketplaceBadge } from "@/components/marketplace/marketplace-badge";
 
@@ -27,6 +28,11 @@ export function ProductCard({
   className,
 }: ProductCardProps) {
   const cover = product.images[0];
+  // Buy options = direct agent links plus the source-flow agents (BaseTao,
+  // ACBuy) that a source link unlocks.
+  const agentCount =
+    product.agentLinks.length +
+    (product.sourceUrl ? SOURCE_FLOW_AGENT_LIST.length : 0);
 
   return (
     <motion.article
@@ -76,8 +82,7 @@ export function ProductCard({
 
           <div className="mt-auto flex items-center justify-between pt-5">
             <span className="text-xs text-muted">
-              {product.agentLinks.length} agent
-              {product.agentLinks.length === 1 ? "" : "s"} available
+              {agentCount} agent{agentCount === 1 ? "" : "s"} available
             </span>
             <span
               aria-hidden="true"

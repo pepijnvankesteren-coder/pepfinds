@@ -36,6 +36,7 @@ function scalarFields(data: ProductInput) {
     category: data.category ?? null,
     tags: data.tags,
     marketplace: data.marketplace,
+    sourceUrl: data.sourceUrl ?? null,
     featured: data.featured,
     published: data.published,
   };

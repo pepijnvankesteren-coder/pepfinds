@@ -32,6 +32,7 @@ export function toProductView(product: ProductWithLinks): ProductView {
     category: product.category,
     tags: product.tags,
     marketplace: product.marketplace as MarketplaceId,
+    sourceUrl: product.sourceUrl,
     featured: product.featured,
     published: product.published,
     createdAt: product.createdAt.toISOString(),

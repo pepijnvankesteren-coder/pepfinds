@@ -45,6 +45,10 @@ model Product {
   /// Normalized to lowercase on write so tag search is case-insensitive.
   tags        String[]
   marketplace Marketplace @default(OTHER)
+  /// Original marketplace listing URL (Weidian/Taobao/1688/etc). Powers the
+  /// "paste this link into the agent" popup for source-flow agents (BaseTao,
+  /// ACBuy), so it only needs to be entered once.
+  sourceUrl   String?
   /// Featured products surface in the homepage "Featured" section.
   featured    Boolean     @default(false)
   /// Drafts (published = false) are only visible inside the admin area.

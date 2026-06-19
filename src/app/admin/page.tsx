@@ -5,6 +5,7 @@ import { requireAdmin } from "@/lib/auth";
 import { getAllProductsForAdmin } from "@/lib/products";
 import { deleteProduct } from "@/lib/actions/product-actions";
 import { getMarketplace } from "@/lib/marketplaces";
+import { SOURCE_FLOW_AGENT_LIST } from "@/lib/agents";
 import { cn } from "@/lib/utils";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
@@ -74,7 +75,11 @@ export default async function AdminDashboardPage() {
         </div>
       ) : (
         <ul className="mt-8 overflow-hidden rounded-3xl border border-line bg-canvas shadow-soft">
-          {products.map((product) => (
+          {products.map((product) => {
+            const agentCount =
+              product.agentLinks.length +
+              (product.sourceUrl ? SOURCE_FLOW_AGENT_LIST.length : 0);
+            return (
             <li
               key={product.id}
               className="flex items-center gap-4 border-b border-line-soft p-4 last:border-b-0 sm:gap-5 sm:px-6"
@@ -101,8 +106,7 @@ export default async function AdminDashboardPage() {
                   {getMarketplace(product.marketplace).name}
                   {product.category ? ` · ${product.category}` : ""}
                   {" · "}
-                  {product.agentLinks.length} agent
-                  {product.agentLinks.length === 1 ? "" : "s"}
+                  {agentCount} agent{agentCount === 1 ? "" : "s"}
                 </p>
               </div>
 
@@ -130,7 +134,8 @@ export default async function AdminDashboardPage() {
                 />
               </div>
             </li>
-          ))}
+            );
+          })}
         </ul>
       )}
     </Container>

@@ -6,7 +6,7 @@ import Link from "next/link";
 import { ImageIcon, Plus, X } from "lucide-react";
 
 import type { ProductFormState } from "@/lib/actions/product-actions";
-import { AGENT_LIST } from "@/lib/agents";
+import { DIRECT_AGENT_LIST, SOURCE_FLOW_AGENT_LIST } from "@/lib/agents";
 import { MARKETPLACE_IDS } from "@/lib/types";
 import { MARKETPLACES } from "@/lib/marketplaces";
 import type { ProductView } from "@/lib/types";
@@ -75,6 +75,11 @@ export function ProductForm({ action, initial, submitLabel }: ProductFormProps) 
     initial?.agentLinks.find((link) => link.agent === agentId)?.url ?? "";
 
   const errors = state.errors ?? {};
+
+  // "BaseTao & ACBuy" — the agents driven by the single source link below.
+  const sourceFlowNames = SOURCE_FLOW_AGENT_LIST.map((agent) => agent.name).join(
+    " & ",
+  );
 
   return (
     <form action={formAction} className="space-y-6">
@@ -213,7 +218,7 @@ export function ProductForm({ action, initial, submitLabel }: ProductFormProps) 
         hint="Paste the listing URL for each agent that carries this product. Empty fields are simply left off the page."
       >
         <div className="space-y-4">
-          {AGENT_LIST.map((agent) => (
+          {DIRECT_AGENT_LIST.map((agent) => (
             <div key={agent.id}>
               <Label htmlFor={`agent-${agent.id}`} hint={agent.domain}>
                 {agent.name}
@@ -230,6 +235,26 @@ export function ProductForm({ action, initial, submitLabel }: ProductFormProps) 
           ))}
         </div>
         <FieldError message={errors.agentLinks} />
+      </FormSection>
+
+      <FormSection
+        title={`Source link (${sourceFlowNames})`}
+        hint={`The original listing URL on the source marketplace. Enter it once and ${sourceFlowNames} buy buttons appear automatically — clicking one shows a popup with this link to copy plus your affiliate sign-up link.`}
+      >
+        <div>
+          <Label htmlFor="product-source-url" hint="Weidian / Taobao / 1688 / etc.">
+            Original product URL
+          </Label>
+          <Input
+            id="product-source-url"
+            name="sourceUrl"
+            type="url"
+            defaultValue={initial?.sourceUrl ?? ""}
+            placeholder="https://weidian.com/item.html?itemID=…"
+            className="mt-2"
+          />
+          <FieldError message={errors.sourceUrl} />
+        </div>
       </FormSection>
 
       <FormSection title="Visibility">

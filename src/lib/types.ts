@@ -46,6 +46,12 @@ export interface AgentInfo {
   name: string;
   /** Primary domain, shown as a hint next to agent link inputs. */
   domain: string;
+  /**
+   * Affiliate sign-up URL for source-flow agents. When present, this agent
+   * has no per-product link: instead its buy button opens a popup that shows
+   * the product's sourceUrl to copy and this URL to open the agent.
+   */
+  signupUrl?: string;
 }
 
 /** A single agent purchase link attached to a product. */
@@ -67,6 +73,8 @@ export interface ProductView {
   category: string | null;
   tags: string[];
   marketplace: MarketplaceId;
+  /** Original marketplace listing URL; drives the source-flow agent popups. */
+  sourceUrl: string | null;
   featured: boolean;
   published: boolean;
   createdAt: string;
