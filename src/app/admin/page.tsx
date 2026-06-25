@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ImageIcon, Package, Pencil, Plus, Star } from "lucide-react";
+import { ImageIcon, Package, Pencil, Plus, Star, Upload } from "lucide-react";
 
 import { requireAdmin } from "@/lib/auth";
 import { getAllProductsForAdmin } from "@/lib/products";
@@ -46,12 +46,20 @@ export default async function AdminDashboardPage() {
               : `${products.length} product${products.length === 1 ? "" : "s"} · ${publishedCount} published`}
           </p>
         </div>
-        <Button asChild size="md" className="self-start sm:self-auto">
-          <Link href="/admin/products/new">
-            <Plus />
-            New product
-          </Link>
-        </Button>
+        <div className="flex items-center gap-3 self-start sm:self-auto">
+          <Button asChild variant="outline" size="md">
+            <Link href="/admin/products/import">
+              <Upload />
+              Bulk import
+            </Link>
+          </Button>
+          <Button asChild size="md">
+            <Link href="/admin/products/new">
+              <Plus />
+              New product
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {products.length === 0 ? (
