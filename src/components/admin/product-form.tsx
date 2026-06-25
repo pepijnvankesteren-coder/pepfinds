@@ -3,10 +3,12 @@
 import * as React from "react";
 import { useActionState } from "react";
 import Link from "next/link";
-import { ImageIcon, Plus, X } from "lucide-react";
+import { Check, ImageIcon, Plus, X } from "lucide-react";
 
 import type { ProductFormState } from "@/lib/actions/product-actions";
 import { DIRECT_AGENT_LIST, SOURCE_FLOW_AGENT_LIST } from "@/lib/agents";
+import { buildAgentUrl } from "@/lib/agent-links";
+import { parseSourceUrl, type ParsedSource } from "@/lib/source-link";
 import { MARKETPLACE_IDS } from "@/lib/types";
 import { MARKETPLACES } from "@/lib/marketplaces";
 import type { ProductView } from "@/lib/types";
@@ -74,12 +76,13 @@ export function ProductForm({ action, initial, submitLabel }: ProductFormProps) 
   const initialAgentUrl = (agentId: string) =>
     initial?.agentLinks.find((link) => link.agent === agentId)?.url ?? "";
 
-  const errors = state.errors ?? {};
+  // The source link drives every direct agent's buy button, so the form
+  // previews what it generates live as you paste it.
+  const [sourceUrl, setSourceUrl] = React.useState(initial?.sourceUrl ?? "");
+  const trimmedSource = sourceUrl.trim();
+  const parsedSource = trimmedSource ? parseSourceUrl(trimmedSource) : null;
 
-  // "BaseTao & ACBuy" — the agents driven by the single source link below.
-  const sourceFlowNames = SOURCE_FLOW_AGENT_LIST.map((agent) => agent.name).join(
-    " & ",
-  );
+  const errors = state.errors ?? {};
 
   return (
     <form action={formAction} className="space-y-6">
@@ -214,8 +217,31 @@ export function ProductForm({ action, initial, submitLabel }: ProductFormProps) 
       </FormSection>
 
       <FormSection
-        title="Agent links"
-        hint="Paste the listing URL for each agent that carries this product. Empty fields are simply left off the page."
+        title="Source link"
+        hint="Paste the original Weidian / Taobao / 1688 listing URL once. Every agent's buy button is generated from it automatically — you don't paste a link per agent."
+      >
+        <div>
+          <Label htmlFor="product-source-url" hint="Weidian / Taobao / 1688 / etc.">
+            Original product URL
+          </Label>
+          <Input
+            id="product-source-url"
+            name="sourceUrl"
+            type="url"
+            value={sourceUrl}
+            onChange={(e) => setSourceUrl(e.target.value)}
+            placeholder="https://weidian.com/item.html?itemID=…"
+            className="mt-2"
+          />
+          <FieldError message={errors.sourceUrl} />
+        </div>
+
+        <GeneratedLinksPreview source={parsedSource} hasInput={Boolean(trimmedSource)} />
+      </FormSection>
+
+      <FormSection
+        title="Manual agent links (optional)"
+        hint="Optional override. Paste a specific listing URL to replace the auto-generated link for that agent — leave empty to use the link generated from the source above."
       >
         <div className="space-y-4">
           {DIRECT_AGENT_LIST.map((agent) => (
@@ -228,33 +254,17 @@ export function ProductForm({ action, initial, submitLabel }: ProductFormProps) 
                 name={`agent-${agent.id}`}
                 type="url"
                 defaultValue={initialAgentUrl(agent.id)}
-                placeholder={`https://www.${agent.domain}/…`}
+                placeholder={
+                  parsedSource
+                    ? "Auto-generated from source link"
+                    : `https://www.${agent.domain}/…`
+                }
                 className="mt-2"
               />
             </div>
           ))}
         </div>
         <FieldError message={errors.agentLinks} />
-      </FormSection>
-
-      <FormSection
-        title={`Source link (${sourceFlowNames})`}
-        hint={`The original listing URL on the source marketplace. Enter it once and ${sourceFlowNames} buy buttons appear automatically — clicking one shows a popup with this link to copy plus your affiliate sign-up link.`}
-      >
-        <div>
-          <Label htmlFor="product-source-url" hint="Weidian / Taobao / 1688 / etc.">
-            Original product URL
-          </Label>
-          <Input
-            id="product-source-url"
-            name="sourceUrl"
-            type="url"
-            defaultValue={initial?.sourceUrl ?? ""}
-            placeholder="https://weidian.com/item.html?itemID=…"
-            className="mt-2"
-          />
-          <FieldError message={errors.sourceUrl} />
-        </div>
       </FormSection>
 
       <FormSection title="Visibility">
@@ -281,5 +291,67 @@ export function ProductForm({ action, initial, submitLabel }: ProductFormProps) 
         </Button>
       </div>
     </form>
+  );
+}
+
+/**
+ * Live preview of the buy buttons the source link will produce. Generation is
+ * the exact logic the public page runs (lib/agent-links.ts), so the admin sees
+ * what shoppers will get the moment they paste a link — instead of saving and
+ * checking the live page.
+ */
+function GeneratedLinksPreview({
+  source,
+  hasInput,
+}: {
+  source: ParsedSource | null;
+  hasInput: boolean;
+}) {
+  if (!hasInput) {
+    return (
+      <p className="rounded-2xl border border-line bg-surface-soft px-4 py-3 text-xs text-muted">
+        Paste a source link above to preview the buy buttons it will generate.
+      </p>
+    );
+  }
+
+  const generated = DIRECT_AGENT_LIST.map((agent) => ({
+    agent,
+    url: source ? buildAgentUrl(agent.id, source) : null,
+  }));
+  const generatedCount = generated.filter((row) => row.url).length;
+  const sourceFlowNames = SOURCE_FLOW_AGENT_LIST.map((a) => a.name).join(" & ");
+
+  return (
+    <div className="rounded-2xl border border-line bg-surface-soft p-4">
+      <p className="text-xs font-semibold uppercase tracking-wide text-muted-soft">
+        Generated buy buttons ({generatedCount})
+      </p>
+
+      {generatedCount === 0 ? (
+        <p className="mt-2 text-xs text-[#b42318]">
+          Couldn&apos;t read an item from this link. Use a direct Weidian /
+          Taobao / 1688 listing URL (the one with the item id).
+        </p>
+      ) : (
+        <ul className="mt-3 space-y-2">
+          {generated.map(({ agent, url }) =>
+            url ? (
+              <li key={agent.id} className="flex items-start gap-2 text-xs">
+                <Check className="mt-px size-3.5 shrink-0 text-ink" />
+                <span className="shrink-0 font-medium text-ink">{agent.name}</span>
+                <span className="min-w-0 flex-1 truncate text-muted">{url}</span>
+              </li>
+            ) : null,
+          )}
+        </ul>
+      )}
+
+      {sourceFlowNames && (
+        <p className="mt-3 border-t border-line pt-3 text-xs text-muted">
+          {sourceFlowNames} show a copy-paste popup using this link.
+        </p>
+      )}
+    </div>
   );
 }
