@@ -79,5 +79,11 @@ export interface ProductView {
   published: boolean;
   createdAt: string;
   updatedAt: string;
+  /** Manual per-agent override links saved on the product (admin-entered). */
   agentLinks: AgentLinkView[];
+  /**
+   * Effective direct-agent buy buttons for the public page: a manual override
+   * link when set, otherwise an affiliate link generated from the source link.
+   */
+  buyLinks: AgentLinkView[];
 }

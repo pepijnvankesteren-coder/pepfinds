@@ -28,10 +28,10 @@ export function ProductCard({
   className,
 }: ProductCardProps) {
   const cover = product.images[0];
-  // Buy options = direct agent links plus the source-flow agents (BaseTao,
-  // ACBuy) that a source link unlocks.
+  // Buy options = generated/override direct-agent buttons plus the source-flow
+  // agents (BaseTao, ACBuy) that a source link unlocks.
   const agentCount =
-    product.agentLinks.length +
+    product.buyLinks.length +
     (product.sourceUrl ? SOURCE_FLOW_AGENT_LIST.length : 0);
 
   return (

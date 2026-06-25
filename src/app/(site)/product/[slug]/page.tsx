@@ -101,7 +101,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 listing on the agent&apos;s site, ready to order.
               </p>
               <AgentButtons
-                links={product.agentLinks}
+                links={product.buyLinks}
                 sourceUrl={product.sourceUrl}
                 className="mt-5"
               />

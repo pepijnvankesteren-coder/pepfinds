@@ -1,9 +1,13 @@
 import type { Prisma } from "@prisma/client";
 
 import { db } from "@/lib/db";
+import { DIRECT_AGENT_LIST } from "@/lib/agents";
+import { buildAgentUrl } from "@/lib/agent-links";
+import { parseSourceUrl } from "@/lib/source-link";
 import {
   AGENT_IDS,
   type AgentId,
+  type AgentLinkView,
   type MarketplaceId,
   type ProductView,
 } from "@/lib/types";
@@ -23,6 +27,26 @@ type ProductWithLinks = Prisma.ProductGetPayload<{
 /** Map a database row (with links) into the UI view shape. */
 export function toProductView(product: ProductWithLinks): ProductView {
   const agentOrder = new Map(AGENT_IDS.map((id, index) => [id, index]));
+
+  const agentLinks: AgentLinkView[] = [...product.agentLinks]
+    .sort(
+      (a, b) =>
+        (agentOrder.get(a.agent as AgentId) ?? 99) -
+        (agentOrder.get(b.agent as AgentId) ?? 99),
+    )
+    .map((link) => ({ agent: link.agent as AgentId, url: link.url }));
+
+  // Effective buy buttons: a manual override when present, otherwise an
+  // affiliate link generated from the source link.
+  const parsedSource = product.sourceUrl ? parseSourceUrl(product.sourceUrl) : null;
+  const manual = new Map(agentLinks.map((link) => [link.agent, link.url]));
+  const buyLinks: AgentLinkView[] = DIRECT_AGENT_LIST.flatMap((agent) => {
+    const url =
+      manual.get(agent.id) ??
+      (parsedSource ? buildAgentUrl(agent.id, parsedSource) : null);
+    return url ? [{ agent: agent.id, url }] : [];
+  });
+
   return {
     id: product.id,
     slug: product.slug,
@@ -37,13 +61,8 @@ export function toProductView(product: ProductWithLinks): ProductView {
     published: product.published,
     createdAt: product.createdAt.toISOString(),
     updatedAt: product.updatedAt.toISOString(),
-    agentLinks: [...product.agentLinks]
-      .sort(
-        (a, b) =>
-          (agentOrder.get(a.agent as AgentId) ?? 99) -
-          (agentOrder.get(b.agent as AgentId) ?? 99),
-      )
-      .map((link) => ({ agent: link.agent as AgentId, url: link.url })),
+    agentLinks,
+    buyLinks,
   };
 }
 
