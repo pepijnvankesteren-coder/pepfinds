@@ -15,6 +15,14 @@ const urlField = z
   .max(2000, "URL is too long")
   .regex(/^https?:\/\/\S+$/i, "Must be a full http(s):// URL");
 
+// Images may also be a same-origin path (e.g. /api/img?u=… for proxied Yupoo
+// photos), so allow a leading-slash relative URL in addition to full URLs.
+const imageUrlField = z
+  .string()
+  .trim()
+  .max(2000, "URL is too long")
+  .regex(/^(https?:\/\/|\/)\S+$/i, "Must be a full URL or a /path");
+
 export const productInputSchema = z
   .object({
     title: z
@@ -27,7 +35,7 @@ export const productInputSchema = z
       .trim()
       .min(1, "Description is required")
       .max(8000, "Description must be 8000 characters or fewer"),
-    images: z.array(urlField).max(10, "Up to 10 images per product"),
+    images: z.array(imageUrlField).max(10, "Up to 10 images per product"),
     category: z
       .string()
       .trim()

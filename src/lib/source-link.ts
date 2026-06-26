@@ -78,3 +78,14 @@ export function parseSourceUrl(raw: string): ParsedSource | null {
   // Anything else: still a valid source link, just not auto-convertible.
   return { platform: "OTHER", itemId: null, canonicalUrl: null, rawUrl: url };
 }
+
+/**
+ * Stable identity for a source listing, so the same item — pasted twice or
+ * already in the catalog — is only imported once. Falls back to the raw URL for
+ * unrecognized marketplaces where no item id can be extracted.
+ */
+export function sourceKey(source: ParsedSource): string {
+  return source.platform !== "OTHER" && source.itemId
+    ? `${source.platform}:${source.itemId}`
+    : source.rawUrl.trim().toLowerCase();
+}

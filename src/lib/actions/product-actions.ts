@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getMarketplace } from "@/lib/marketplaces";
-import { parseSourceUrl, type ParsedSource } from "@/lib/source-link";
+import { parseSourceUrl, sourceKey, type ParsedSource } from "@/lib/source-link";
 import { generateUniqueSlug } from "@/lib/slug";
 import {
   fieldErrorsFrom,
@@ -121,17 +121,6 @@ export interface BulkImportState {
   invalid?: string[];
   /** Form-level error (e.g. nothing pasted). */
   message?: string;
-}
-
-/**
- * Stable identity for a source listing, so the same item pasted twice — or
- * already in the catalog — is only imported once. Falls back to the raw URL
- * for unrecognized marketplaces where no item id can be extracted.
- */
-function sourceKey(source: ParsedSource): string {
-  return source.platform !== "OTHER" && source.itemId
-    ? `${source.platform}:${source.itemId}`
-    : source.rawUrl.trim().toLowerCase();
 }
 
 /** Placeholder title for a freshly imported draft, e.g. "Weidian 7263846". */
