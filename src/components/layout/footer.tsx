@@ -26,16 +26,24 @@ export function Footer() {
 
           <nav aria-label="Footer">
             <ul className="flex flex-wrap gap-x-8 gap-y-3">
-              {FOOTER_LINKS.map((link) => (
-                <li key={link.label}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-muted transition-colors hover:text-ink"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
+              {FOOTER_LINKS.map((link) => {
+                const external = /^(mailto:|https?:)/.test(link.href);
+                const className =
+                  "text-sm text-muted transition-colors hover:text-ink";
+                return (
+                  <li key={link.label}>
+                    {external ? (
+                      <a href={link.href} className={className}>
+                        {link.label}
+                      </a>
+                    ) : (
+                      <Link href={link.href} className={className}>
+                        {link.label}
+                      </Link>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </nav>
         </div>

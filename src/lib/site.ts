@@ -8,6 +8,9 @@ export const SITE = {
   locale: "en_US",
 } as const;
 
+/** Single contact address, used across the legal pages and the footer. */
+export const CONTACT_EMAIL = "pepvanspam@gmail.com";
+
 /** Primary navigation links shared by the navbar. */
 export const NAV_LINKS = [
   { label: "Catalog", href: "/search" },
@@ -15,10 +18,12 @@ export const NAV_LINKS = [
   { label: "Features", href: "/#features" },
 ] as const;
 
-/** Footer link groups. */
+/** Footer links. mailto:/https: hrefs render as plain anchors in the footer. */
 export const FOOTER_LINKS = [
-  { label: "About", href: "#" },
-  { label: "Contact", href: "#" },
-  { label: "Privacy Policy", href: "#" },
-  { label: "Terms", href: "#" },
+  { label: "Privacy Policy", href: "/privacy-policy" },
+  { label: "Terms", href: "/terms-and-conditions" },
+  { label: "Cookies", href: "/cookies" },
+  { label: "Intellectual Property", href: "/ip" },
+  { label: "DSA", href: "/dsa" },
+  { label: "Contact", href: `mailto:${CONTACT_EMAIL}` },
 ] as const;
