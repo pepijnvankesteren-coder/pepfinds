@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Images, ImageIcon, Package, Pencil, Plus, Star, Upload } from "lucide-react";
+import { Bookmark, Images, ImageIcon, Package, Pencil, Plus, Star, Upload } from "lucide-react";
 
 import { requireAdmin } from "@/lib/auth";
 import { getAllProductsForAdmin } from "@/lib/products";
@@ -47,6 +47,12 @@ export default async function AdminDashboardPage() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3 self-start sm:self-auto">
+          <Button asChild variant="outline" size="md">
+            <Link href="/admin/tools">
+              <Bookmark />
+              Bookmarklet
+            </Link>
+          </Button>
           <Button asChild variant="outline" size="md">
             <Link href="/admin/products/yupoo">
               <Images />

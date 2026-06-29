@@ -89,3 +89,43 @@ export function sourceKey(source: ParsedSource): string {
     ? `${source.platform}:${source.itemId}`
     : source.rawUrl.trim().toLowerCase();
 }
+
+/**
+ * Find the first usable Weidian / Taobao / 1688 listing URL among a set of
+ * candidate strings (e.g. every link on a product page, plus the page URL).
+ * Each candidate is also decoded a couple of times, so a marketplace URL that
+ * an agent link wraps in a percent-encoded `?url=` param is still found.
+ * Used by the one-click bookmarklet importer.
+ */
+export function findMarketplaceUrl(candidates: string[]): string | null {
+  for (const raw of candidates) {
+    if (!raw) continue;
+    const forms = [raw];
+    try {
+      forms.push(decodeURIComponent(raw));
+    } catch {
+      // Malformed escape — skip the decoded form.
+    }
+    try {
+      forms.push(decodeURIComponent(decodeURIComponent(raw)));
+    } catch {
+      // Ditto.
+    }
+    for (const form of forms) {
+      // Split before every scheme so a marketplace URL nested in an agent
+      // link's `?url=` param is treated as its own candidate, not swallowed by
+      // the outer URL.
+      for (const part of form.split(/(?=https?:\/\/)/i)) {
+        const match = part.match(/^https?:\/\/[^\s"'<>\\]+/i);
+        if (!match) continue;
+        const url = match[0].replace(/[)\].,]+$/, "");
+        if (!/(weidian|taobao|tmall|1688)\.com/i.test(url)) continue;
+        const parsed = parseSourceUrl(url);
+        if (parsed && parsed.platform !== "OTHER" && parsed.itemId) {
+          return parsed.canonicalUrl ?? url;
+        }
+      }
+    }
+  }
+  return null;
+}
