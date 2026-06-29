@@ -4,7 +4,10 @@ export const SITE = {
   title: "PepFinds — Curated Finds Direct From China",
   description:
     "A hand-picked catalog of products from Weidian, Taobao, and 1688 — each with direct links to trusted buying agents.",
-  url: "https://pepfinds.com",
+  // Canonical production URL. pepfinds.com is owned by a third party, so the
+  // free Vercel domain is the real home; everything (sitemap, robots, OG,
+  // canonical links, metadataBase) derives from this single value.
+  url: "https://pepfinds.vercel.app",
   locale: "en_US",
 } as const;
 
