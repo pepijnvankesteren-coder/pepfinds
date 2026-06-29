@@ -30,6 +30,8 @@ export function CookieConsent() {
   const choose = (choice: Choice) => {
     document.cookie = `${CONSENT_COOKIE}=${choice}; path=/; max-age=${ONE_YEAR}; samesite=lax`;
     setDecided(true);
+    // Let the analytics gate react immediately, without a page reload.
+    window.dispatchEvent(new Event("pf-consent-changed"));
   };
 
   if (decided) return null;

@@ -27,11 +27,13 @@ export const metadata: Metadata = {
     siteName: SITE.name,
     title: SITE.title,
     description: SITE.description,
+    images: [{ url: "/api/og", width: 1200, height: 630, alt: SITE.title }],
   },
   twitter: {
     card: "summary_large_image",
     title: SITE.title,
     description: SITE.description,
+    images: ["/api/og"],
   },
   robots: {
     index: true,

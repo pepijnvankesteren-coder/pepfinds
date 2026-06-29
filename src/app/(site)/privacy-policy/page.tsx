@@ -43,8 +43,10 @@ export default function PrivacyPolicyPage() {
       </p>
       <ul>
         <li>
-          <strong>No analytics or tracking</strong> are active on the site at the
-          time of writing. We do not use advertising or profiling cookies.
+          <strong>Privacy-friendly analytics only</strong>: we use Vercel Web
+          Analytics, which is cookieless and collects no personal data, and only
+          after you accept analytics via our cookie banner. We use no advertising
+          or profiling cookies.
         </li>
         <li>
           <strong>No sign-up, newsletter, or contact form</strong> — we collect
@@ -65,10 +67,9 @@ export default function PrivacyPolicyPage() {
       </p>
       <h3>Cookies</h3>
       <p>
-        We use a small number of cookies. Today these are strictly necessary
-        only (an admin-login cookie that visitors never receive, and a cookie
-        that records your cookie choice). If we enable analytics in the future,
-        those cookies will only be placed after you consent. See our{" "}
+        We use a small number of strictly necessary cookies only (an admin-login
+        cookie that visitors never receive, and a cookie that records your cookie
+        choice). Our analytics (Vercel Web Analytics) is cookieless. See our{" "}
         <a href="/cookies">Cookie Policy</a> for the full list.
       </p>
       <h3>Outbound links to agents and marketplaces</h3>
@@ -107,7 +108,9 @@ export default function PrivacyPolicyPage() {
       </p>
       <ul>
         <li>
-          <strong>Vercel Inc.</strong> — website hosting and content delivery.
+          <strong>Vercel Inc.</strong> — website hosting, content delivery, and
+          privacy-friendly, cookieless web analytics (which runs only with your
+          consent).
         </li>
         <li>
           <strong>Neon Inc.</strong> — managed database hosting (this stores our

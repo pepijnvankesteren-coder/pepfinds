@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { track } from "@vercel/analytics";
 import { ArrowUpRight, Check, Copy, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -12,6 +13,8 @@ interface AgentButtonsProps {
   links: AgentLinkView[];
   /** Original marketplace URL; enables the source-flow agent buttons. */
   sourceUrl?: string | null;
+  /** Product slug, recorded with buy-click analytics events. */
+  productSlug?: string;
   className?: string;
 }
 
@@ -42,12 +45,22 @@ function PillContent({ label, hint }: { label: string; hint: string }) {
  * product's source link to copy alongside the affiliate sign-up link, because
  * those agents work by pasting the original URL into their own search.
  */
-export function AgentButtons({ links, sourceUrl, className }: AgentButtonsProps) {
+export function AgentButtons({
+  links,
+  sourceUrl,
+  productSlug,
+  className,
+}: AgentButtonsProps) {
   const [activeAgent, setActiveAgent] = React.useState<AgentId | null>(null);
 
   const sourceAgents = sourceUrl ? SOURCE_FLOW_AGENT_LIST : [];
 
   if (links.length === 0 && sourceAgents.length === 0) return null;
+
+  // Record which agent/product a visitor clicks through to buy. A no-op until
+  // the visitor has accepted analytics (Vercel Analytics isn't loaded before).
+  const trackBuy = (agent: AgentId, kind: "direct" | "source") =>
+    track("buy_click", { agent, kind, product: productSlug ?? "" });
 
   return (
     <>
@@ -60,6 +73,7 @@ export function AgentButtons({ links, sourceUrl, className }: AgentButtonsProps)
               href={link.url}
               target="_blank"
               rel="noopener noreferrer nofollow"
+              onClick={() => trackBuy(link.agent, "direct")}
               className={pillClass}
             >
               <PillContent label={`Buy via ${agent.name}`} hint={agent.domain} />
@@ -71,7 +85,10 @@ export function AgentButtons({ links, sourceUrl, className }: AgentButtonsProps)
           <button
             key={agent.id}
             type="button"
-            onClick={() => setActiveAgent(agent.id)}
+            onClick={() => {
+              trackBuy(agent.id, "source");
+              setActiveAgent(agent.id);
+            }}
             className={pillClass}
           >
             <PillContent label={`Buy via ${agent.name}`} hint={agent.domain} />

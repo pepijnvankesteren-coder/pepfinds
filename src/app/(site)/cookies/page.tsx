@@ -49,13 +49,14 @@ export default function CookiesPage() {
           your preference.
         </li>
       </ul>
-      <h3>Analytics / statistics (optional, consent required)</h3>
+      <h3>Analytics (optional, consent required)</h3>
       <p>
-        We do <strong>not</strong> currently use any analytics, statistics, or
-        tracking cookies. If we introduce them in the future, they will only be
-        placed <strong>after you accept</strong> them via our cookie banner, and
-        this page will be updated to list each cookie, its provider, and its
-        retention period before they go live.
+        We use <strong>Vercel Web Analytics</strong>, a privacy-friendly
+        analytics tool from our hosting provider. It is{" "}
+        <strong>cookieless</strong> — it sets no cookies and no advertising
+        identifiers — and collects no personal data. It only runs{" "}
+        <strong>after you accept</strong> analytics via the banner; if you
+        decline, it does not run. We use no other analytics or statistics tools.
       </p>
       <h3>Advertising / tracking</h3>
       <p>
