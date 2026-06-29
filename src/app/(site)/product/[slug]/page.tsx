@@ -105,9 +105,21 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 sourceUrl={product.sourceUrl}
                 className="mt-5"
               />
-              <p className="mt-5 text-xs text-muted-soft">
-                Sourced from {marketplace.name}. PepFinds is not affiliated
-                with any marketplace or purchasing agent.
+              <p className="mt-5 text-xs leading-relaxed text-muted-soft">
+                Sourced from {marketplace.name}. PepFinds doesn&apos;t sell or
+                ship anything — your order is placed entirely on the agent&apos;s
+                own site, under their terms. Listed items are sold by third
+                parties and may be unofficial or replica products, and some links
+                may earn us a commission at no extra cost to you. PepFinds is
+                independent and not affiliated with any brand, marketplace, or
+                agent. See our{" "}
+                <Link
+                  href="/terms-and-conditions"
+                  className="underline underline-offset-2 hover:text-ink"
+                >
+                  Terms
+                </Link>
+                .
               </p>
             </div>
           </Reveal>
