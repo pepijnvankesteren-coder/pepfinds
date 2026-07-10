@@ -71,7 +71,6 @@ export default async function ToolsPage() {
               readOnly
               rows={4}
               value={buildBookmarklet(token)}
-              onFocus={(e) => e.currentTarget.select()}
               className="mt-3 w-full rounded-xl border border-line bg-surface-soft px-3.5 py-3 font-mono text-xs text-muted"
             />
           </div>
