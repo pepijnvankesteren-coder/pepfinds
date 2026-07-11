@@ -59,8 +59,14 @@ export function AgentButtons({
 
   // Record which agent/product a visitor clicks through to buy. A no-op until
   // the visitor has accepted analytics (Vercel Analytics isn't loaded before).
-  const trackBuy = (agent: AgentId, kind: "direct" | "source") =>
-    track("buy_click", { agent, kind, product: productSlug ?? "" });
+  // Wrapped so a telemetry hiccup can never break the buy flow.
+  const trackBuy = (agent: AgentId, kind: "direct" | "source") => {
+    try {
+      track("buy_click", { agent, kind, product: productSlug ?? "" });
+    } catch {
+      // Ignore — analytics must never interrupt a purchase.
+    }
+  };
 
   return (
     <>
