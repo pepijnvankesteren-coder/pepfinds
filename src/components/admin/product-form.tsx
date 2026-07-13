@@ -123,14 +123,15 @@ export function ProductForm({ action, initial, submitLabel }: ProductFormProps) 
         </div>
 
         <div>
-          <Label htmlFor="product-description">Description</Label>
+          <Label htmlFor="product-description" hint="Optional">
+            Description
+          </Label>
           <Textarea
             id="product-description"
             name="description"
             defaultValue={initial?.description}
             placeholder="What makes this find worth sharing? Fit, quality, sizing notes…"
             rows={6}
-            required
             className="mt-2"
           />
           <FieldError message={errors.description} />

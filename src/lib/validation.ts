@@ -33,7 +33,6 @@ export const productInputSchema = z
     description: z
       .string()
       .trim()
-      .min(1, "Description is required")
       .max(8000, "Description must be 8000 characters or fewer"),
     images: z.array(imageUrlField).max(10, "Up to 10 images per product"),
     category: z
