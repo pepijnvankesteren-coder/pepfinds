@@ -21,6 +21,8 @@ export interface YupooTarget {
   host: string;
   /** Album id when the input pointed at a single album, else null. */
   albumId: string | null;
+  /** The listing page to import from (a category, the album index, etc.). */
+  listUrl: string;
 }
 
 export interface YupooAlbumSummary {
@@ -59,7 +61,12 @@ function decodeEntities(input: string): string {
     .replace(/&gt;/g, ">");
 }
 
-/** Parse a pasted Yupoo URL into a seller host + optional album id. */
+/**
+ * Parse a pasted Yupoo URL. A single-album URL yields an albumId; any other
+ * page (a category like /categories/123, the /albums index, or the seller
+ * root) yields the exact listUrl to import from — so only the items on the
+ * page you paste are imported, not the whole catalog.
+ */
 export function parseYupooInput(raw: string): YupooTarget | null {
   let url: URL;
   try {
@@ -70,7 +77,13 @@ export function parseYupooInput(raw: string): YupooTarget | null {
   if (!/(^|\.)yupoo\.com$/i.test(url.hostname)) return null;
 
   const album = url.pathname.match(/\/albums\/(\d+)/);
-  return { host: url.hostname, albumId: album ? album[1] : null };
+  // The seller root has no listing of its own — default it to the album index.
+  const listUrl =
+    url.pathname === "/" || url.pathname === ""
+      ? `${url.origin}/albums`
+      : url.href;
+
+  return { host: url.hostname, albumId: album ? album[1] : null, listUrl };
 }
 
 async function fetchHtml(url: string, host: string): Promise<string> {
@@ -162,14 +175,16 @@ export async function fetchYupooAlbum(
 }
 
 /**
- * List a seller's albums (first page) for the selection grid. Covers come from
- * the first photo in each album's card; titles are best-effort here and are
- * always refreshed from the album page on import.
+ * List the albums shown on a given Yupoo page (a category, the album index,
+ * etc.) for the selection grid. Covers come from the first photo in each
+ * album's card; titles are best-effort here and are always refreshed from the
+ * album page on import.
  */
 export async function listYupooAlbums(
+  listUrl: string,
   host: string,
 ): Promise<YupooAlbumSummary[]> {
-  const html = await fetchHtml(`https://${host}/albums`, host);
+  const html = await fetchHtml(listUrl, host);
 
   // First index of each distinct album link, in document order.
   const anchors = new Map<string, number>();

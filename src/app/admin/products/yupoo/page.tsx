@@ -24,8 +24,9 @@ export default async function YupooImportPage() {
         Import from Yupoo
       </h1>
       <p className="mt-1.5 text-sm text-muted">
-        Paste a Yupoo seller&apos;s album page, pick the products you want, and
-        import them as drafts — each with buy buttons generated from the
+        Paste any Yupoo page — a category, the seller&apos;s full album list, or
+        a single item. Only the items on that page are listed. Pick what you
+        want and import them as drafts, each with buy buttons generated from the
         marketplace link in the album.
       </p>
 

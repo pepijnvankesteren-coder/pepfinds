@@ -56,7 +56,10 @@ export function YupooImportForm() {
       {/* Step 1 — load albums */}
       <form action={loadAction}>
         <section className="rounded-3xl border border-line bg-canvas p-6 shadow-soft sm:p-8">
-          <Label htmlFor="yupoo-url" hint="A seller's album page, or one album URL.">
+          <Label
+            htmlFor="yupoo-url"
+            hint="A category, the seller's albums, or a single album — only items on that page are imported."
+          >
             Yupoo URL
           </Label>
           <div className="mt-3 flex flex-col gap-3 sm:flex-row">

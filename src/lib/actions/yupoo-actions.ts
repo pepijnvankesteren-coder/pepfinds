@@ -64,7 +64,7 @@ export async function loadYupooAlbums(
         ],
       };
     }
-    const albums = await listYupooAlbums(target.host);
+    const albums = await listYupooAlbums(target.listUrl, target.host);
     if (albums.length === 0) {
       return { message: "No albums found on that page." };
     }
