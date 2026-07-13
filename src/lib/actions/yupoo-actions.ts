@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { requireAdmin } from "@/lib/auth";
+import { categorize } from "@/lib/categorize";
 import { db } from "@/lib/db";
 import { generateUniqueSlug } from "@/lib/slug";
 import { parseSourceUrl, sourceKey } from "@/lib/source-link";
@@ -151,14 +152,15 @@ export async function importYupooAlbums(
     seen.add(key);
 
     const slug = await generateUniqueSlug(album.title);
+    const { category, tags } = categorize(album.title);
     const draft = await db.product.create({
       data: {
         slug,
         title: album.title,
         description: "",
         images: album.images,
-        category: null,
-        tags: [],
+        category,
+        tags,
         marketplace: parsed.platform,
         sourceUrl: parsed.canonicalUrl ?? album.sourceUrl,
         featured: false,

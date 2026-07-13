@@ -1,6 +1,7 @@
 import { timingSafeEqual } from "node:crypto";
 import type { NextRequest } from "next/server";
 
+import { categorize } from "@/lib/categorize";
 import { db } from "@/lib/db";
 import { getMarketplace } from "@/lib/marketplaces";
 import { generateUniqueSlug } from "@/lib/slug";
@@ -104,6 +105,7 @@ export async function POST(request: NextRequest) {
     String(body.title ?? "").split("|")[0].trim() ||
     `${getMarketplace(parsed.platform).name} ${parsed.itemId}`;
   const slug = await generateUniqueSlug(title);
+  const { category, tags } = categorize(title);
 
   const draft = await db.product.create({
     data: {
@@ -111,7 +113,8 @@ export async function POST(request: NextRequest) {
       title,
       description: "",
       images,
-      tags: [],
+      category,
+      tags,
       marketplace: parsed.platform,
       sourceUrl: parsed.canonicalUrl ?? sourceUrl,
       published: false,

@@ -3,9 +3,10 @@
 import * as React from "react";
 import { useActionState } from "react";
 import Link from "next/link";
-import { Check, ImageIcon, Plus, X } from "lucide-react";
+import { Check, ImageIcon, Plus, Sparkles, X } from "lucide-react";
 
 import type { ProductFormState } from "@/lib/actions/product-actions";
+import { categorize } from "@/lib/categorize";
 import { DIRECT_AGENT_LIST, SOURCE_FLOW_AGENT_LIST } from "@/lib/agents";
 import { buildAgentUrl } from "@/lib/agent-links";
 import { parseSourceUrl, type ParsedSource } from "@/lib/source-link";
@@ -83,6 +84,20 @@ export function ProductForm({ action, initial, submitLabel }: ProductFormProps) 
   const parsedSource = trimmedSource ? parseSourceUrl(trimmedSource) : null;
 
   const errors = state.errors ?? {};
+
+  // Fill the category + tags fields from the current title (keyword-based, no
+  // network). Non-destructive: only overwrites when something is detected.
+  const detectFromTitle = () => {
+    const byId = <T extends HTMLInputElement | HTMLTextAreaElement>(id: string) =>
+      document.getElementById(id) as T | null;
+    const title = byId<HTMLInputElement>("product-title")?.value ?? "";
+    const description = byId<HTMLTextAreaElement>("product-description")?.value ?? "";
+    const { category, tags } = categorize(title, description);
+    const categoryEl = byId<HTMLInputElement>("product-category");
+    const tagsEl = byId<HTMLInputElement>("product-tags");
+    if (categoryEl && category) categoryEl.value = category;
+    if (tagsEl && tags.length) tagsEl.value = tags.join(", ");
+  };
 
   return (
     <form action={formAction} className="space-y-6">
@@ -169,6 +184,21 @@ export function ProductForm({ action, initial, submitLabel }: ProductFormProps) 
       </FormSection>
 
       <FormSection title="Organization">
+        <div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={detectFromTitle}
+          >
+            <Sparkles />
+            Detect from title
+          </Button>
+          <p className="mt-1.5 text-xs text-muted-soft">
+            Fills category and tags from the product title.
+          </p>
+        </div>
+
         <div className="grid gap-5 sm:grid-cols-2">
           <div>
             <Label htmlFor="product-category">Category</Label>
