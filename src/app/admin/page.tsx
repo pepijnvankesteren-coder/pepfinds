@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import { DeleteProductButton } from "@/components/admin/delete-product-button";
+import { PublishAllDrafts } from "@/components/admin/publish-all-drafts";
 
 export const dynamic = "force-dynamic";
 
@@ -32,6 +33,7 @@ export default async function AdminDashboardPage() {
   await requireAdmin();
   const products = await getAllProductsForAdmin();
   const publishedCount = products.filter((p) => p.published).length;
+  const draftCount = products.length - publishedCount;
 
   return (
     <Container>
@@ -73,6 +75,8 @@ export default async function AdminDashboardPage() {
           </Button>
         </div>
       </div>
+
+      {draftCount > 0 && <PublishAllDrafts draftCount={draftCount} />}
 
       {products.length === 0 ? (
         <div className="mt-10 flex flex-col items-center rounded-3xl border border-dashed border-line bg-canvas px-8 py-20 text-center">

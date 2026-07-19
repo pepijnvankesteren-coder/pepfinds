@@ -217,6 +217,74 @@ export async function bulkImportProducts(
   return { ok: true, created, duplicates, invalid };
 }
 
+export interface PublishAllState {
+  /** Form-level error (e.g. nothing ready to publish). */
+  message?: string;
+  /** How many drafts were published this run. */
+  published?: number;
+  /** Drafts skipped because they lacked an image or a buy/source link. */
+  skipped?: number;
+}
+
+/**
+ * Publish every draft that's ready in one go, optionally stamping a shared
+ * description on the ones that don't have their own yet — so a whole Yupoo
+ * album can be imported and pushed live without editing each item.
+ */
+export async function publishAllDrafts(
+  _prev: PublishAllState,
+  formData: FormData,
+): Promise<PublishAllState> {
+  await requireAdmin();
+
+  const description = String(formData.get("description") ?? "").trim();
+
+  const drafts = await db.product.findMany({
+    where: { published: false },
+    select: {
+      id: true,
+      images: true,
+      sourceUrl: true,
+      description: true,
+      agentLinks: { select: { id: true } },
+    },
+  });
+
+  // Same bar as the edit form: a published product needs at least one image and
+  // at least one way to buy (a source link or an agent link).
+  const ready = drafts.filter(
+    (d) => d.images.length > 0 && (Boolean(d.sourceUrl) || d.agentLinks.length > 0),
+  );
+
+  if (ready.length === 0) {
+    return {
+      message:
+        "No drafts are ready. Each needs at least one image and a source or agent link.",
+    };
+  }
+
+  // Apply the shared description only where the draft doesn't already have one.
+  if (description) {
+    const ids = ready.filter((d) => !d.description.trim()).map((d) => d.id);
+    if (ids.length > 0) {
+      await db.product.updateMany({
+        where: { id: { in: ids } },
+        data: { description },
+      });
+    }
+  }
+
+  await db.product.updateMany({
+    where: { id: { in: ready.map((d) => d.id) } },
+    data: { published: true },
+  });
+
+  revalidateCatalog();
+  revalidatePath("/admin");
+
+  return { published: ready.length, skipped: drafts.length - ready.length };
+}
+
 export async function deleteProduct(id: string): Promise<void> {
   await requireAdmin();
 
